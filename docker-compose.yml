@@ -1,0 +1,29 @@
+version: "3.9"
+# base compose. utilizes overrides
+# dev: docker-compose up. deployment: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
+services:
+  web:
+    env_file:
+      - .env
+    user: app_runner
+    build: .
+    image: pizza_app
+    command: sh -c "python pizza/manage.py collectstatic --no-input && python pizza/manage.py migrate && uwsgi --ini uwsgi.ini --socket :${SERVICE_PORT}"
+    ports:
+      - 18001:18001
+    depends_on:
+      - db
+  db:
+    env_file:
+      - .env
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    volumes: 
+      - ./docker-entrypoint-initdb.d/:/docker-entrypoint-initdb.d/
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8081:8080

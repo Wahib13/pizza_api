@@ -1,0 +1,10 @@
+version: "3.9"
+# local dev environment
+services:
+  web:
+    volumes:
+      - ./:/home/app_runner/code/
+    working_dir: /home/app_runner/code/
+    command: sh -c "python manage.py collectstatic --no-input && python manage.py migrate && python manage.py runserver 0.0.0.0:${SERVICE_PORT}"
+    ports:
+      - 8000:8000
