@@ -17,7 +17,7 @@ class Order(models.Model):
         (DISPATCHED, 'DISPATCHED'),
         (DELIVERED, 'DELIVERED'),
     ]
-    status = models.CharField(choices=STATUS_CHOICES, max_length=2)
+    status = models.CharField(choices=STATUS_CHOICES, max_length=2, default=RECEIVED)
 
 
 class Pizza(models.Model):
