@@ -8,7 +8,7 @@ class Customer(models.Model):
 
 
 class Order(models.Model):
-    customer = models.ForeignKey(Customer, models.SET_NULL, null=True, blank=True)
+    customer = models.ForeignKey(Customer, models.CASCADE)
     RECEIVED = 'RE'
     DISPATCHED = 'DI'
     DELIVERED = 'DE'

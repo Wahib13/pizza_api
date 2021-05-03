@@ -1,11 +1,15 @@
-import logging
 from collections import Counter, OrderedDict
 
 from rest_framework import serializers
-from rest_framework.exceptions import APIException
 
 from api.api_exceptions import IllegalOrderUpdateException
-from api.models import Order, Pizza
+from api.models import Order, Pizza, Customer
+
+
+class CustomerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = '__all__'
 
 
 class PizzaSetSerializer(serializers.ListSerializer):
@@ -73,11 +77,11 @@ class PizzaSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     # a group of the same pizza
     pizza_set = PizzaSerializer(many=True, required=True)
+    customer_info = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Order
-        fields = ('id', 'customer', 'status', 'pizza_set')
-        read_only_fields = ['customer']
+        fields = ('id', 'customer', 'customer_info', 'status', 'pizza_set')
 
     def create(self, validated_data):
         pizza_set = validated_data.pop('pizza_set')
@@ -90,6 +94,9 @@ class OrderSerializer(serializers.ModelSerializer):
             pizza_set_serializer.save(order_id=order.id)
         return order
 
+    def get_customer_info(self, order):
+        return CustomerSerializer(order.customer).data
+
     def validate_pizza_set(self, value):
         if len(value) <= 0:
             raise serializers.ValidationError('order requires at least one pizza')
@@ -100,6 +107,8 @@ class OrderSerializer(serializers.ModelSerializer):
             raise IllegalOrderUpdateException(detail='illegal update. order status is DELIVERED')
         # prevent throwing the nested writes exception
         pizza_set = validated_data.pop('pizza_set')
+        # prevent updating customer field
+        validated_data.pop('customer')
         # update the other fields
         instance = super(OrderSerializer, self).update(instance, validated_data)
 
