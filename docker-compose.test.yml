@@ -1,0 +1,9 @@
+version: "3.9"
+# only for running tests
+# use in conjunction with base docker-compose.yml: docker-compose -f docker-compose.yml -f docker-compose.test.yml
+services:
+  web:
+    working_dir: /home/app_runner/code/
+    command: python manage.py test
+    depends_on:
+      - db

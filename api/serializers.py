@@ -105,16 +105,16 @@ class OrderSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         if instance.status == Order.DELIVERED:
             raise IllegalOrderUpdateException(detail='illegal update. order status is DELIVERED')
-        # prevent throwing the nested writes exception
-        pizza_set = validated_data.pop('pizza_set')
-        # prevent updating customer field
-        validated_data.pop('customer')
+        # prevent throwing the nested writes exception during create
+        if validated_data.get('pizza_set'):
+            pizza_set = validated_data.pop('pizza_set')
+
+            pizza_set_serializer = PizzaSerializer(instance.pizza_set, data=pizza_set, many=True)
+            if pizza_set_serializer.is_valid():
+                pizza_set_serializer.save(order_id=instance.id)
+
         # update the other fields
         instance = super(OrderSerializer, self).update(instance, validated_data)
-
-        pizza_set_serializer = PizzaSerializer(instance.pizza_set, data=pizza_set, many=True)
-        if pizza_set_serializer.is_valid():
-            pizza_set_serializer.save(order_id=instance.id)
 
         return instance
 

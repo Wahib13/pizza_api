@@ -1,0 +1,20 @@
+[
+  {
+    "model": "api.customer",
+    "pk": 1,
+    "fields": {
+      "name": "John Doe",
+      "phone_number": "23301",
+      "address": "Accra"
+    }
+  },
+  {
+    "model": "api.customer",
+    "pk": 2,
+    "fields": {
+      "name": "Jane Doe",
+      "phone_number": "24501",
+      "address": "Nigeria"
+    }
+  }
+]
